@@ -33,7 +33,17 @@ jobs:
           base=$(node -p "require('./package.json').version.split('.').slice(0,2).join('.')")
           npm version "$base.${{ github.run_number }}" --no-git-tag-version
           node -p "'Versão ' + require('./package.json').version"
-      - name: Gerar e publicar o instalador
+      # Sobe como rascunho (o instalador, o latest.yml que o app confere e o blockmap) e só
+      # publica com tudo lá: publicado de cara, os envios em paralelo disputavam a criação.
+      - name: Gerar o instalador e enviar como rascunho
         run: npx electron-builder --win nsis --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publicar a versão
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="v$(node -p "require('./package.json').version")"
+          gh release view "$tag" --json assets -q '.assets[].name' | grep -q '^latest.yml$'
+          gh release edit "$tag" --draft=false --latest --title "SindiHoje para Windows ${tag#v}"
