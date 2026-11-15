@@ -15,7 +15,8 @@
     "appId": "com.sindihoje.desktop",
     "productName": "SindiHoje",
     "directories": {
-      "output": "dist"
+      "output": "dist",
+      "buildResources": "build"
     },
     "files": [
       "main.js",
@@ -25,17 +26,23 @@
     ],
     "win": {
       "target": "nsis",
-      "icon": "icon.png"
+      "icon": "build/icon.ico"
     },
     "nsis": {
       "oneClick": false,
-      "perMachine": false,
+      "perMachine": true,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "SindiHoje",
       "language": "1046",
-      "artifactName": "SindiHoje-Setup-${version}.${ext}"
+      "artifactName": "SindiHoje-Setup-${version}.${ext}",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico",
+      "installerSidebar": "build/installerSidebar.bmp",
+      "uninstallerSidebar": "build/uninstallerSidebar.bmp",
+      "installerHeader": "build/installerHeader.bmp"
     },
     "publish": [
       {
