@@ -35,6 +35,14 @@ jobs:
           node -p "'Versão ' + require('./package.json').version"
       # Sobe como rascunho (o instalador, o latest.yml que o app confere e o blockmap) e só
       # publica com tudo lá: publicado de cara, os envios em paralelo disputavam a criação.
+      # O rascunho existe antes dos envios: todos vão para ele, sem criar um segundo.
+      - name: Criar o rascunho da versão
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          v=$(node -p "require('./package.json').version")
+          gh release create "v$v" --draft --title "SindiHoje para Windows $v" --notes "Instale o SindiHoje-Setup-$v.exe. Quem já tem o app recebe esta versão sozinho." --target "${{ github.sha }}"
       - name: Gerar o instalador e enviar como rascunho
         run: npx electron-builder --win nsis --publish always
         env:
