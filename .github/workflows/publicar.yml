@@ -1,0 +1,39 @@
+# Cada mudança na main vira uma versão do SindiHoje para Windows, publicada nos Releases.
+# O app instalado confere os Releases, baixa a versão nova e o site mostra o aviso para
+# reiniciar. A versão é a base do package.json (1.15) mais o número desta execução:
+# 1.15.1, 1.15.2… sempre maior que a anterior, sem ninguém precisar aumentar.
+name: Publicar
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publicar
+  cancel-in-progress: false
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Versão
+        shell: bash
+        run: |
+          base=$(node -p "require('./package.json').version.split('.').slice(0,2).join('.')")
+          npm version "$base.${{ github.run_number }}" --no-git-tag-version
+          node -p "'Versão ' + require('./package.json').version"
+      - name: Gerar e publicar o instalador
+        run: npx electron-builder --win nsis --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
